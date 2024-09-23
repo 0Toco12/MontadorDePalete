@@ -163,7 +163,7 @@ class QRCodeLabelPrinter:
 
         # Definir o tamanho da imagem para a impressora
         # Fator de escala para garantir que a imagem se ajuste ao papel da impressora
-        scale_factor = 4
+        scale_factor = 1
 
         # Definir o tamanho da página da impressora
         hdc.StartDoc("Etiqueta QR Code")
