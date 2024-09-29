@@ -26,10 +26,10 @@ class QRCodeLabelPrinter:
         self.root.iconphoto(False, icon)
 
         # Adicionando o título
-        self.title_label = tk.Label(self.root, text="Montagem de Palete", font=("Roboto", 24, "bold"))
-        self.title_label.grid(row=0, column=0, columnspan=2, padx=10, pady=(10, 20), sticky="nsew")
+        self.title_label = tk.Label(self.root, text="Montagem de Palete",  font=("Roboto", 24, "bold"))
+        self.title_label.grid(row=0, column=0, columnspan=3, padx=20, pady=(10, 20), sticky="n")
         self.title_label.configure(bg=back)
-
+        
         # Configurar o layout da janela usando grid
         self.root.geometry("800x400")
         self.root.grid_columnconfigure(0, weight=1)
@@ -143,51 +143,6 @@ class QRCodeLabelPrinter:
         # Após gerar o QR Code, chamar a função de impressão automaticamente
         self.imprimir_etiqueta()
 
-        #----------------------------------------------------------------------------------
-
-        # Obter os códigos de barras da entrada de texto
-        # codigos_barras = self.input_text.get("1.0", tk.END).strip().splitlines()
-
-        # if not codigos_barras:
-        #     messagebox.showerror("Erro", "Insira ao menos um código de barras.")
-        #     return
-
-        # # Filtrar apenas códigos de barras novos
-        # novos_codigos = [codigo for codigo in codigos_barras if codigo not in self.codigos_unicos]
-
-        # # if not novos_codigos:
-        # #     messagebox.showinfo("Aviso", "Todos os códigos já foram inseridos anteriormente.")
-        # #     return
-
-        # # Adicionar os novos códigos à lista de únicos
-        # self.codigos_unicos.update(novos_codigos)
-
-        # # Atualizar o contador
-        # self.contador_codigos = len(self.codigos_unicos)
-        # self.contador_label.config(text=f"Total de códigos lidos: {self.contador_codigos}")
-
-        # # Concatenar os novos códigos em uma única string
-        # dados = "\n".join(novos_codigos)
-
-        # # Gerar o QR Code com os novos códigos
-        # qr = qrcode.QRCode(
-        #     version=1,
-        #     error_correction=qrcode.constants.ERROR_CORRECT_L,
-        #     box_size=10,
-        #     border=4,
-        # )
-        # qr.add_data(dados)
-        # qr.make(fit=True)
-
-        # # Criar a imagem do QR Code e salvar com nome personalizado e data
-        # img = qr.make_image(fill="black", back_color="white")
-        # data_atual = datetime.now().strftime("%d-%m-%Y")  # Obtém a data no formato dd-mm-yyyy
-        # self.qr_image_path = f"p{self.contador_codigos}-{data_atual}.png"
-        # img.save(self.qr_image_path)
-
-        # # Após gerar o QR Code, chamar a função de impressão automaticamente
-        # self.imprimir_etiqueta()
-
     def update_counter(self, event=None):
         # Contar o número de linhas com códigos inseridos
         num_codigos = len(self.input_text.get("1.0", tk.END).strip().splitlines())
@@ -209,21 +164,21 @@ class QRCodeLabelPrinter:
 
     def enviar_para_impressora(self, image_path):
         # Obtém a impressora padrão
-        # img = Image.open(image_path)
+        img = Image.open(image_path)
 
-        # # Argox OS-2140 PPLA
+        # Argox OS-2140 PPLA
 
-        # printer_name = "OneNote (Desktop)"
+        printer_name = "Argox OS-2140 PPLA"
 
-        # # Abre um "device context" da impressora
-        # hdc = win32ui.CreateDC()
-        # hdc.CreatePrinterDC(printer_name)
+        # Abre um "device context" da impressora
+        hdc = win32ui.CreateDC()
+        hdc.CreatePrinterDC(printer_name)
 
-        # # Abre a imagem
-        # img_width, img_height = img.size
+        # Abre a imagem
+        img_width, img_height = img.size
 
-        # # Definir o tamanho da imagem para a impressora
-        # # Fator de escala para garantir que a imagem se ajuste ao papel da impressora
+        # Definir o tamanho da imagem para a impressora
+        # Fator de escala para garantir que a imagem se ajuste ao papel da impressora
         # scale_factor = 2
 
         # # Definir o tamanho da página da impressora
@@ -233,73 +188,110 @@ class QRCodeLabelPrinter:
         # dib = ImageWin.Dib(img)
         # dib.draw(hdc.GetHandleOutput(), (450, 450, img_width // scale_factor, img_height // scale_factor))
 
-        # hdc.EndPage()
-        # hdc.EndDoc()
-        # hdc.DeleteDC()
-        #------------------------------------------------------------------------------------------------------------------
-        # Abra a imagem
-        img = Image.open(image_path)
+        # Dimensões da página de impressão em milímetros
+        page_width_mm = 165  # Largura da página em mm
+        page_height_mm = 186  # Altura da página em mm
 
-        # Configurar a impressora padrão
-        impressora_padrao = "Argox OS-2140 PPLA"
+        # Conversão para pixels (assumindo 300 DPI)
+        dpi = 450  # Pode ajustar se necessário
+        page_width_px = int((page_width_mm / 25.4) * dpi)  # Converter de mm para pixels
+        page_height_px = int((page_height_mm / 25.4) * dpi)
 
-        # Obter o HDC da impressora
-        hdc = win32ui.CreateDC()
-        hdc.CreatePrinterDC(impressora_padrao)
-
-        # Configurar as preferências de impressão
-        hPrinter = win32print.OpenPrinter(impressora_padrao)
-        devmode = win32print.GetPrinter(hPrinter, 2)["pDevMode"]
-
-        # Ajustar preferências de impressão
-        devmode.PaperSize = 9  # A4
-        devmode.Orientation = 1  # Retrato
-        devmode.PrintQuality = -3  # Alta qualidade
-        devmode.Copies = 2  # Número de cópias
-        devmode.Scale = 100  # Ajustar para caber
-        devmode.YResolution = 600  # Resolução vertical
-        devmode.XResolution = 600  # Resolução horizontal
-
-        # Aplicar as configurações
-        win32print.SetPrinter(hPrinter, 2, {"pDevMode": devmode}, 0)
-        win32print.ClosePrinter(hPrinter)
+        # Calcular as coordenadas para centralizar a imagem
+        scale_factor = 2  # Ajustar o fator de escala, se necessário
+        left_margin = 300 #(page_width_px - (img_width // scale_factor)) // 2        
+        top_margin = 1 #(page_height_px - (img_height // scale_factor)) // 2
 
         # Iniciar o documento de impressão
-        hdc.StartDoc("Impressão de Imagem")
+        hdc.StartDoc("Etiqueta QR Code")
         hdc.StartPage()
 
-        # Obter as dimensões da imagem
-        width, height = img.size
-
-        # Converter a imagem para um formato compatível com o HDC
+        # Desenhar a imagem na posição centralizada
         dib = ImageWin.Dib(img)
+        dib.draw(hdc.GetHandleOutput(), (left_margin, top_margin, left_margin + (img_width // scale_factor), top_margin + (img_height // scale_factor)))
 
-        # Ajustar a imagem para caber na página
-        dib.draw(hdc.GetHandleOutput(), (0, 0, width, height))
 
-        # Finalizar a impressão
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         hdc.EndPage()
         hdc.EndDoc()
         hdc.DeleteDC()
+        #------------------------------------------------------------------------------------------------------------------
+        # Abra a imagem
+        # img = Image.open(image_path)
+
+        # # Configurar a impressora padrão
+        # impressora_padrao = "Argox OS-2140 PPLA"
+
+        # # Obter o HDC da impressora
+        # hdc = win32ui.CreateDC()
+        # hdc.CreatePrinterDC(impressora_padrao)
+
+        # # Configurar as preferências de impressão
+        # hPrinter = win32print.OpenPrinter(impressora_padrao)
+        # devmode = win32print.GetPrinter(hPrinter, 2)["pDevMode"]
+
+        # # Ajustar preferências de impressão
+        # devmode.PaperSize = 9  # A4
+        # devmode.Orientation = 1  # Retrato
+        # devmode.PrintQuality = -3  # Alta qualidade
+        # devmode.Copies = 2  # Número de cópias
+        # devmode.Scale = 100  # Ajustar para caber
+        # devmode.YResolution = 600  # Resolução vertical
+        # devmode.XResolution = 600  # Resolução horizontal
+
+        # # Aplicar as configurações
+        # win32print.SetPrinter(hPrinter, 2, {"pDevMode": devmode}, 0)
+        # win32print.ClosePrinter(hPrinter)
+
+        # # Iniciar o documento de impressão
+        # hdc.StartDoc("Impressão de Imagem")
+        # hdc.StartPage()
+
+        # # Obter as dimensões da imagem
+        # width, height = img.size
+
+        # # Converter a imagem para um formato compatível com o HDC
+        # dib = ImageWin.Dib(img)
+
+        # # Ajustar a imagem para caber na página
+        # dib.draw(hdc.GetHandleOutput(), (0, 0, width, height))
+
+        # # Finalizar a impressão
+        # hdc.EndPage()
+        # hdc.EndDoc()
+        # hdc.DeleteDC()
 
     def limpar_tela(self):
-        # Limpar o campo de texto
         self.input_text.delete("1.0", tk.END)
+        self.counter_label.config(text="Total de códigos lidos: 0")
+        if self.image_label:
+            self.image_label.destroy()  # Remove a imagem atual
+        self.qr_image_path = None  # Reseta o caminho do QR Code gerado
+
 
 def resource_path(relative_path):
-    """Obter o caminho absoluto do recurso, funciona para o executável ou para o script"""
+    """ Função para obter o caminho correto dos recursos (imagens, ícones, etc.) """
     try:
-        # Quando empacotado com PyInstaller, o atributo _MEIPASS contém o caminho temporário
-        base_path = sys._MEIPASS
+        base_path = sys._MEIPASS  # Caminho temporário usado pelo PyInstaller
     except Exception:
         base_path = os.path.abspath(".")
-
     return os.path.join(base_path, relative_path)
 
-# Inicialização da aplicação
+
 if __name__ == "__main__":
     root = tk.Tk()
-    root.title("Montagem de Palete")
-    root.configure(bg=back)
     app = QRCodeLabelPrinter(root)
     root.mainloop()
