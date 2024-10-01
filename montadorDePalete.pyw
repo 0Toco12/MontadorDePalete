@@ -50,14 +50,22 @@ class QRCodeLabelPrinter:
         self.input_text.pack(pady=10)
         self.input_text.configure(bg="#C0C0C0")
 
-        self.frame_text = tk.Frame(self.root)
-        self.frame_text.grid (row=1, column=1, padx=10, pady=10, sticky="nsew")
-        self.frame_text.configure(bg=back)
+        # Frame para o contador (à direita da área de texto)
+        self.frame_counter = tk.Frame(self.root)
+        self.frame_counter.grid(row=1, column=1, padx=10, pady=(150, 10), sticky="nsew")  # Agora na mesma linha, mas em uma coluna diferente
+        self.frame_counter.configure(bg=back)
 
-        # Contador de códigos de barras lidos
-        self.counter_label = tk.Label(self.frame_text, text="Total de códigos lidos: 0", font=("Roboto", 14, "bold"), width=30)
-        self.counter_label.pack(pady=(200, 10))
-        self.counter_label.configure(bg=back)
+        # Label para o texto "Total de códigos lidos"
+        self.counter_label_text = tk.Label(self.frame_counter, text="Total de códigos lidos:", font=("Roboto", 14, "bold"))
+        self.counter_label_text.pack(pady=10)
+
+        # Label para o número total de códigos, com fonte maior
+        self.counter_label_number = tk.Label(self.frame_counter, text="0", font=("Roboto", 100, "bold"))
+        self.counter_label_number.pack()
+
+        self.counter_label_text.configure(bg=back)
+        self.counter_label_number.configure(bg=back)
+
 
         # Vincular o evento de mudança de conteúdo no campo de texto
         self.input_text.bind("<<Modified>>", self.update_counter)
@@ -86,6 +94,15 @@ class QRCodeLabelPrinter:
         self.contador_imagens = 1
         self.qr_image_path = None
 
+        # Adicionar eventos de hover
+        self.add_hover_effect(self.generate_button)
+        self.add_hover_effect(self.clear_button)
+
+    # Função para adicionar hover effect aos botões
+    def add_hover_effect(self, button):
+        button.bind("<Enter>", lambda e: button.config(bg="#008B8B", fg="#4F4F4F"))
+        button.bind("<Leave>", lambda e: button.config(bg="#006400", fg="#f0f0f0"))
+
     def display_image(self):
         # Carregar a imagem do caminho especificado (use o caminho absoluto ou relativo correto)
         image_path = resource_path('img.png')  # Verifique se este caminho está correto!
@@ -111,7 +128,6 @@ class QRCodeLabelPrinter:
             messagebox.showerror("Erro", f"Erro ao carregar a imagem: {e}")
 
     def gerar_qr_code(self):
-
 
         codigos_barras = [codigo.strip() for codigo in self.input_text.get("1.0", tk.END).strip().splitlines()]
         # codigos_barras = [codigo.strip() for codigo in self.input_text.get("1.0", tk.END).strip().splitlines() if codigo.strip()]
@@ -147,10 +163,21 @@ class QRCodeLabelPrinter:
         self.imprimir_etiqueta()
 
     def update_counter(self, event=None):
-        # Contar o número de linhas com códigos inseridos
-        num_codigos = len(self.input_text.get("1.0", tk.END).strip().splitlines())
-        self.counter_label.config(text=f"Total de códigos lidos: {num_codigos}")
-        self.input_text.edit_modified(False)  # Reset the modified flag
+        # Obter todas as linhas de códigos de barras inseridos
+        codigos_barras = [codigo.strip() for codigo in self.input_text.get("1.0", tk.END).strip().splitlines() if codigo.strip()]
+
+        # Limpar o conjunto de códigos únicos
+        self.codigos_unicos.clear()
+
+        # Adicionar os códigos não repetidos ao conjunto de códigos únicos
+        for codigo in codigos_barras:
+            self.codigos_unicos.add(codigo)
+
+        # Atualizar o label com o número de códigos únicos
+        self.counter_label_number.config(text=str(len(self.codigos_unicos)))
+
+        # Resetar o flag de modificação do Text widget
+        self.input_text.edit_modified(False)
 
 
     def imprimir_etiqueta(self):
@@ -208,7 +235,9 @@ class QRCodeLabelPrinter:
 
     def limpar_tela(self):
         self.input_text.delete("1.0", tk.END)
-        self.counter_label.config(text="Total de códigos lidos: 0")
+        self.counter_label_number.config(text="0")
+        self.codigos_unicos.clear()
+        # self.counter_label.config(text="Total de códigos lidos: 0")
         if self.image_label:
             self.image_label.destroy()  # Remove a imagem atual
         self.qr_image_path = None  # Reseta o caminho do QR Code gerado
@@ -225,6 +254,8 @@ def resource_path(relative_path):
 
 if __name__ == "__main__":
     root = tk.Tk()
+    root.title("Montagem de Palete")
+    root.configure(bg=back)
     app = QRCodeLabelPrinter(root)
     root.mainloop()
 
