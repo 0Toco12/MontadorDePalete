@@ -112,14 +112,10 @@ class QRCodeLabelPrinter:
 
     def gerar_qr_code(self):
 
-<<<<<<< HEAD
 
         codigos_barras = [codigo.strip() for codigo in self.input_text.get("1.0", tk.END).strip().splitlines()]
         # codigos_barras = [codigo.strip() for codigo in self.input_text.get("1.0", tk.END).strip().splitlines() if codigo.strip()]
         # codigos_barras = self.input_text.get("1.0", tk.END).strip().splitlines()
-=======
-        codigos_barras = self.input_text.get("1.0", tk.END).strip().splitlines()
->>>>>>> 6b6e0d94cf34bad1e2dc4da5ad1ab5220decab67
 
         if not codigos_barras:
             messagebox.showerror("Erro", "Insira ao menos um código de barras.")
@@ -184,28 +180,10 @@ class QRCodeLabelPrinter:
         # Abre a imagem
         img_width, img_height = img.size
 
-<<<<<<< HEAD
         # Dimensões da página de impressão em milímetros
         page_width_mm = 165  # Largura da página em mm
         page_height_mm = 186  # Altura da página em mm
 
-=======
-        # Definir o tamanho da imagem para a impressora
-        # Fator de escala para garantir que a imagem se ajuste ao papel da impressora
-        # scale_factor = 2
-
-        # # Definir o tamanho da página da impressora
-        # hdc.StartDoc("Etiqueta QR Code")
-        # hdc.StartPage()
-
-        # dib = ImageWin.Dib(img)
-        # dib.draw(hdc.GetHandleOutput(), (450, 450, img_width // scale_factor, img_height // scale_factor))
-
-        # Dimensões da página de impressão em milímetros
-        page_width_mm = 165  # Largura da página em mm
-        page_height_mm = 186  # Altura da página em mm
-
->>>>>>> 6b6e0d94cf34bad1e2dc4da5ad1ab5220decab67
         # Conversão para pixels (assumindo 300 DPI)
         dpi = 450  # Pode ajustar se necessário
         page_width_px = int((page_width_mm / 25.4) * dpi)  # Converter de mm para pixels
@@ -223,73 +201,10 @@ class QRCodeLabelPrinter:
         # Desenhar a imagem na posição centralizada
         dib = ImageWin.Dib(img)
         dib.draw(hdc.GetHandleOutput(), (left_margin, top_margin, left_margin + (img_width // scale_factor), top_margin + (img_height // scale_factor)))
-<<<<<<< HEAD
-=======
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
->>>>>>> 6b6e0d94cf34bad1e2dc4da5ad1ab5220decab67
 
         hdc.EndPage()
         hdc.EndDoc()
         hdc.DeleteDC()
-        #------------------------------------------------------------------------------------------------------------------
-        # Abra a imagem
-        # img = Image.open(image_path)
-
-        # # Configurar a impressora padrão
-        # impressora_padrao = "Argox OS-2140 PPLA"
-
-        # # Obter o HDC da impressora
-        # hdc = win32ui.CreateDC()
-        # hdc.CreatePrinterDC(impressora_padrao)
-
-        # # Configurar as preferências de impressão
-        # hPrinter = win32print.OpenPrinter(impressora_padrao)
-        # devmode = win32print.GetPrinter(hPrinter, 2)["pDevMode"]
-
-        # # Ajustar preferências de impressão
-        # devmode.PaperSize = 9  # A4
-        # devmode.Orientation = 1  # Retrato
-        # devmode.PrintQuality = -3  # Alta qualidade
-        # devmode.Copies = 2  # Número de cópias
-        # devmode.Scale = 100  # Ajustar para caber
-        # devmode.YResolution = 600  # Resolução vertical
-        # devmode.XResolution = 600  # Resolução horizontal
-
-        # # Aplicar as configurações
-        # win32print.SetPrinter(hPrinter, 2, {"pDevMode": devmode}, 0)
-        # win32print.ClosePrinter(hPrinter)
-
-        # # Iniciar o documento de impressão
-        # hdc.StartDoc("Impressão de Imagem")
-        # hdc.StartPage()
-
-        # # Obter as dimensões da imagem
-        # width, height = img.size
-
-        # # Converter a imagem para um formato compatível com o HDC
-        # dib = ImageWin.Dib(img)
-
-        # # Ajustar a imagem para caber na página
-        # dib.draw(hdc.GetHandleOutput(), (0, 0, width, height))
-
-        # # Finalizar a impressão
-        # hdc.EndPage()
-        # hdc.EndDoc()
-        # hdc.DeleteDC()
 
     def limpar_tela(self):
         self.input_text.delete("1.0", tk.END)
