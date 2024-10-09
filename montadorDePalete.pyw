@@ -129,7 +129,9 @@ class QRCodeLabelPrinter:
 
     def gerar_qr_code(self):
 
-        codigos_barras = [codigo.strip() for codigo in self.input_text.get("1.0", tk.END).strip().splitlines()]
+        # Pega os códigos únicos já filtrados
+        codigos_barras = list(self.codigos_unicos)
+        # codigos_barras = [codigo.strip() for codigo in self.input_text.get("1.0", tk.END).strip().splitlines()]
         # codigos_barras = [codigo.strip() for codigo in self.input_text.get("1.0", tk.END).strip().splitlines() if codigo.strip()]
         # codigos_barras = self.input_text.get("1.0", tk.END).strip().splitlines()
 
