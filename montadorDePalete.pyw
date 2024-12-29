@@ -1,7 +1,8 @@
 import tkinter as tk
+import customtkinter as ctk
 from tkinter import messagebox
 import qrcode
-from PIL import Image, ImageTk, ImageWin
+from PIL import Image, ImageTk, ImageWin, ImageDraw
 import os
 import sys
 import win32print
@@ -11,92 +12,170 @@ from datetime import datetime
 from ctypes import windll
 
 
-class QRCodeLabelPrinter:
 
-    global back
-    back = "#DCDCDC"
+# class QRCodeLabelPrinter:
+
+#     global back
+#     back = "#DCDCDC"
     
+#     def __init__(self, root):
+#         self.codigos_unicos = set()
+#         self.contador_codigos = 0
+#         self.root = root
+#         self.root.title("Montador de Palete")
+
+#         icon = ImageTk.PhotoImage(file='logo.png')
+#         self.root.iconphoto(False, icon)
+
+#         # Adicionando o título
+#         self.title_label = tk.Label(self.root, text="Montagem de Palete",  font=("Roboto", 24, "bold"))
+#         self.title_label.grid(row=0, column=0, columnspan=3, padx=20, pady=(10, 20), sticky="n")
+#         self.title_label.configure(bg=back)
+        
+#         # Configurar o layout da janela usando grid
+#         self.root.geometry("800x400")
+#         self.root.grid_columnconfigure(0, weight=1)
+#         self.root.grid_columnconfigure(1, weight=1)
+#         self.root.grid_columnconfigure(2, weight=1)
+
+#         # Frame para a área de texto (à esquerda)
+#         self.frame_text = tk.Frame(self.root)
+#         self.frame_text.grid(row=1, column=0, padx=10, pady=10, sticky="nsew")
+#         self.frame_text.configure(bg=back)
+
+#         # Label e área de texto
+#         self.input_label = tk.Label(self.frame_text, text="Insira os códigos de barras:", font=("Roboto", 20, "bold"))
+#         self.input_label.pack(pady=10)
+#         self.input_label.configure(bg=back)
+
+#         self.input_text = tk.Text(self.frame_text, height=20, width=50)
+#         self.input_text.pack(pady=10)
+#         self.input_text.configure(bg="#C0C0C0")
+
+#         # Frame para o contador (à direita da área de texto)
+#         self.frame_counter = tk.Frame(self.root)
+#         self.frame_counter.grid(row=1, column=1, padx=10, pady=(150, 10), sticky="nsew")  # Agora na mesma linha, mas em uma coluna diferente
+#         self.frame_counter.configure(bg=back)
+
+#         # Label para o texto "Total de códigos lidos"
+#         self.counter_label_text = tk.Label(self.frame_counter, text="Total de códigos lidos:", font=("Roboto", 14, "bold"))
+#         self.counter_label_text.pack(pady=10)
+
+#         # Label para o número total de códigos, com fonte maior
+#         self.counter_label_number = tk.Label(self.frame_counter, text="0", font=("Roboto", 100, "bold"))
+#         self.counter_label_number.pack()
+
+#         self.counter_label_text.configure(bg=back)
+#         self.counter_label_number.configure(bg=back)
+
+
+#         # Vincular o evento de mudança de conteúdo no campo de texto
+#         self.input_text.bind("<<Modified>>", self.update_counter)
+
+#         # Frame para os botões (centro)
+#         self.frame_buttons = tk.Frame(self.root)
+#         self.frame_buttons.grid(row=1, column=2, padx=10, pady=10, sticky="nsew")
+#         self.frame_buttons.configure(bg="#D3D3D3")
+        
+#         # Botão de gerar QR Code
+#         self.generate_button = tk.Button(self.frame_buttons, text="Gerar QR Code", command=self.gerar_qr_code, width=30, height=10, font=("Roboto", 15, "bold"), bg="#006400", fg="#f0f0f0")
+#         self.generate_button.pack(pady=(50, 20))
+
+#         # Botão para limpar a tela
+#         self.clear_button = tk.Button(self.frame_buttons, text="Limpar Tela", command=self.limpar_tela, width=30, font=("Roboto", 15, "bold"), bg="#006400", fg="#f0f0f0")
+#         self.clear_button.pack(pady=20)
+
+#         # Frame para a imagem (à direita)
+#         self.frame_image = tk.Frame(self.root)
+#         self.frame_image.grid(row=2, column=0, columnspan=3, padx=10, pady=10, sticky="nsew")  # Ocupa as 3 colunas
+#         self.frame_image.configure(bg=back)
+
+#         # Adicionar a imagem estática
+#         self.display_image()
+
+#         self.contador_imagens = 1
+#         self.qr_image_path = None
+
+#         # Adicionar eventos de hover
+#         self.add_hover_effect(self.generate_button)
+#         self.add_hover_effect(self.clear_button)
+class QRCodeLabelPrinter:
     def __init__(self, root):
         self.codigos_unicos = set()
         self.contador_codigos = 0
         self.root = root
         self.root.title("Montador de Palete")
+        self.root.geometry("800x400")
 
+        # Customizar o tema
+        ctk.set_appearance_mode("dark")  # Tema escuro
+        ctk.set_default_color_theme("green")  # Cor verde
+
+        # Ícone do programa
         icon = ImageTk.PhotoImage(file='logo.png')
         self.root.iconphoto(False, icon)
 
-        # Adicionando o título
-        self.title_label = tk.Label(self.root, text="Montagem de Palete",  font=("Roboto", 24, "bold"))
+        # Adicionar título
+        self.title_label = ctk.CTkLabel(self.root, text="Montagem de Palete", font=("Roboto", 24, "bold"))
         self.title_label.grid(row=0, column=0, columnspan=3, padx=20, pady=(10, 20), sticky="n")
-        self.title_label.configure(bg=back)
-        
-        # Configurar o layout da janela usando grid
-        self.root.geometry("800x400")
+
+        # Configurar colunas para distribuir conteúdo
         self.root.grid_columnconfigure(0, weight=1)
         self.root.grid_columnconfigure(1, weight=1)
         self.root.grid_columnconfigure(2, weight=1)
 
         # Frame para a área de texto (à esquerda)
-        self.frame_text = tk.Frame(self.root)
+        self.frame_text = ctk.CTkFrame(self.root)
         self.frame_text.grid(row=1, column=0, padx=10, pady=10, sticky="nsew")
-        self.frame_text.configure(bg=back)
 
         # Label e área de texto
-        self.input_label = tk.Label(self.frame_text, text="Insira os códigos de barras:", font=("Roboto", 20, "bold"))
+        self.input_label = ctk.CTkLabel(self.frame_text, text="Insira os códigos de barras:", font=("Roboto", 20, "bold"))
         self.input_label.pack(pady=10)
-        self.input_label.configure(bg=back)
 
-        self.input_text = tk.Text(self.frame_text, height=20, width=50)
+        self.input_text = ctk.CTkTextbox(self.frame_text, height=20, width=50, bg_color="#333333", fg_color="#C0C0C0")
         self.input_text.pack(pady=10)
-        self.input_text.configure(bg="#C0C0C0")
-
+        
         # Frame para o contador (à direita da área de texto)
-        self.frame_counter = tk.Frame(self.root)
-        self.frame_counter.grid(row=1, column=1, padx=10, pady=(150, 10), sticky="nsew")  # Agora na mesma linha, mas em uma coluna diferente
-        self.frame_counter.configure(bg=back)
+        self.frame_counter = ctk.CTkFrame(self.root)
+        self.frame_counter.grid(row=1, column=1, padx=10, pady=(150, 10), sticky="nsew")
 
-        # Label para o texto "Total de códigos lidos"
-        self.counter_label_text = tk.Label(self.frame_counter, text="Total de códigos lidos:", font=("Roboto", 14, "bold"))
+        self.counter_label_text = ctk.CTkLabel(self.frame_counter, text="Total de códigos lidos:", font=("Roboto", 14, "bold"))
         self.counter_label_text.pack(pady=10)
 
-        # Label para o número total de códigos, com fonte maior
-        self.counter_label_number = tk.Label(self.frame_counter, text="0", font=("Roboto", 100, "bold"))
+        self.counter_label_number = ctk.CTkLabel(self.frame_counter, text="0", font=("Roboto", 100, "bold"))
         self.counter_label_number.pack()
 
-        self.counter_label_text.configure(bg=back)
-        self.counter_label_number.configure(bg=back)
-
-
-        # Vincular o evento de mudança de conteúdo no campo de texto
         self.input_text.bind("<<Modified>>", self.update_counter)
 
         # Frame para os botões (centro)
-        self.frame_buttons = tk.Frame(self.root)
+        self.frame_buttons = ctk.CTkFrame(self.root)
         self.frame_buttons.grid(row=1, column=2, padx=10, pady=10, sticky="nsew")
-        self.frame_buttons.configure(bg="#D3D3D3")
         
         # Botão de gerar QR Code
-        self.generate_button = tk.Button(self.frame_buttons, text="Gerar QR Code", command=self.gerar_qr_code, width=30, height=10, font=("Roboto", 15, "bold"), bg="#006400", fg="#f0f0f0")
+        self.generate_button = ctk.CTkButton(
+            self.frame_buttons, text="Gerar QR Code", command=self.gerar_qr_code,
+            corner_radius=8, hover_color="#004d00", fg_color="#006400", text_color="#f0f0f0",
+            font=("Roboto", 15, "bold")
+        )
         self.generate_button.pack(pady=(50, 20))
 
         # Botão para limpar a tela
-        self.clear_button = tk.Button(self.frame_buttons, text="Limpar Tela", command=self.limpar_tela, width=30, font=("Roboto", 15, "bold"), bg="#006400", fg="#f0f0f0")
+        self.clear_button = ctk.CTkButton(
+            self.frame_buttons, text="Limpar Tela", command=self.limpar_tela,
+            corner_radius=8, hover_color="#004d00", fg_color="#006400", text_color="#f0f0f0",
+            font=("Roboto", 15, "bold")
+        )
         self.clear_button.pack(pady=20)
 
-        # Frame para a imagem (à direita)
-        self.frame_image = tk.Frame(self.root)
-        self.frame_image.grid(row=2, column=0, columnspan=3, padx=10, pady=10, sticky="nsew")  # Ocupa as 3 colunas
-        self.frame_image.configure(bg=back)
+        # Frame para a imagem (abaixo)
+        self.frame_image = ctk.CTkFrame(self.root)
+        self.frame_image.grid(row=2, column=0, columnspan=3, padx=10, pady=10, sticky="nsew")
 
         # Adicionar a imagem estática
         self.display_image()
 
         self.contador_imagens = 1
         self.qr_image_path = None
-
-        # Adicionar eventos de hover
-        self.add_hover_effect(self.generate_button)
-        self.add_hover_effect(self.clear_button)
 
     # Função para adicionar hover effect aos botões
     def add_hover_effect(self, button):
@@ -108,24 +187,41 @@ class QRCodeLabelPrinter:
         image_path = resource_path('img.png')  # Verifique se este caminho está correto!
 
         try:
-            # Verifique se o arquivo de imagem existe
             if not os.path.exists(image_path):
                 raise FileNotFoundError(f"Imagem não encontrada no caminho: {image_path}")
 
-            # Carregar e redimensionar a imagem
             img = Image.open(image_path)
-            img = img.resize((400, 200), Image.Resampling.LANCZOS)  # Redimensiona a imagem para 200x200
+            img = img.resize((400, 200), Image.Resampling.LANCZOS)
+            # img_tk = ctk.CTkImage(img)
             img_tk = ImageTk.PhotoImage(img)
 
-            # Adiciona a imagem a um label e a exibe
+            self.image_label = ctk.CTkFrame(self.root)
             self.image_label = tk.Label(self.frame_image, image=img_tk)
-            self.image_label.image = img_tk  # Necessário para o Tkinter manter a referência da imagem
-            self.image_label.pack(pady=10)
-            self.image_label.configure(bg=back)
+            self.image_label.grid(column=2, columnspan=3, pady=10)
+            self.image_label.image = img_tk
+            # self.image_label.pack(pady=10)
         except FileNotFoundError as fnf_error:
             messagebox.showerror("Erro", str(fnf_error))
         except Exception as e:
             messagebox.showerror("Erro", f"Erro ao carregar a imagem: {e}")
+        #     # Verifique se o arquivo de imagem existe
+        #     if not os.path.exists(image_path):
+        #         raise FileNotFoundError(f"Imagem não encontrada no caminho: {image_path}")
+
+        #     # Carregar e redimensionar a imagem
+        #     img = Image.open(image_path)
+        #     img = img.resize((400, 200), Image.Resampling.LANCZOS)  # Redimensiona a imagem para 200x200
+        #     img_tk = ImageTk.PhotoImage(img)
+
+        #     # Adiciona a imagem a um label e a exibe
+        #     self.image_label = tk.Label(self.frame_image, image=img_tk)
+        #     self.image_label.image = img_tk  # Necessário para o Tkinter manter a referência da imagem
+        #     self.image_label.pack(pady=10)
+        #     # self.image_label.configure(bg=back)
+        # except FileNotFoundError as fnf_error:
+        #     messagebox.showerror("Erro", str(fnf_error))
+        # except Exception as e:
+        #     messagebox.showerror("Erro", f"Erro ao carregar a imagem: {e}")
 
     def gerar_qr_code(self):
 
@@ -255,9 +351,12 @@ def resource_path(relative_path):
 
 
 if __name__ == "__main__":
-    root = tk.Tk()
-    root.title("Montagem de Palete")
-    root.configure(bg=back)
+    root = ctk.CTk()
     app = QRCodeLabelPrinter(root)
     root.mainloop()
+    root = tk.Tk()
+    # root.title("Montagem de Palete")
+    # root.configure(bg=back)
+    # app = QRCodeLabelPrinter(root)
+    # root.mainloop()
 
